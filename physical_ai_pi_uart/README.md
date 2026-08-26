@@ -101,6 +101,12 @@ UART確認:
 ls -l /dev/serial*
 ```
 
+`/dev/serial0` が存在しない場合、`raspberrypi-sys-mods` のudevルールが無い環境（Raspberry Pi OS以外のディストリビューションなど）である可能性があります。
+その場合は `ls /dev/tty*` で `ttyAMA0` / `ttyS0` の存在を確認し、`config.py` の `SERIAL_PORT` または `--serial` オプションで直接デバイス名を指定してください。
+
+- `/boot/firmware/config.txt` に `dtoverlay=disable-bt` がある場合 → GPIO14/15はフルUART（`/dev/ttyAMA0`）
+- `dtoverlay=disable-bt` が無い場合 → GPIO14/15はミニUART（`/dev/ttyS0`、Bluetoothがフル UARTを占有）
+
 権限不足の場合:
 
 ```bash

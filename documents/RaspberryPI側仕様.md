@@ -150,6 +150,12 @@ ls -l /dev/serial*
 
 `/dev/serial0` が存在することを確認したうえで、Raspberry PiとM5StackをGPIO UARTで接続して動作確認を行う。
 
+`raspberrypi-sys-mods` のudevルールが無い環境（Raspberry Pi OS以外のディストリビューションなど）では `/dev/serial0` が作成されない場合がある。
+その場合は `ls /dev/tty*` で `ttyAMA0` / `ttyS0` の存在を確認し、`config.py` の `SERIAL_PORT` に直接デバイス名を設定する。
+
+- `/boot/firmware/config.txt` に `dtoverlay=disable-bt` がある場合 → GPIO14/15はフルUART（`/dev/ttyAMA0`）
+- `dtoverlay=disable-bt` が無い場合 → GPIO14/15はミニUART（`/dev/ttyS0`、Bluetoothがフル UARTを占有）
+
 ---
 
 ## 6. Python実行環境
