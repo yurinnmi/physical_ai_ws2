@@ -64,6 +64,9 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+`requirements.txt` は `--extra-index-url https://download.pytorch.org/whl/cpu` を指定し、CPU専用のtorchを使うようにしています。
+Raspberry Pi（NVIDIA GPU非搭載）でCUDA版torchが入ると `Illegal instruction (core dumped)` でクラッシュするため、`torch.__version__` に `+cu***` が付いていないか確認してください。
+
 実行：  
 
 ```bash
