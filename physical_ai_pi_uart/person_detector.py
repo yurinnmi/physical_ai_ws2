@@ -12,14 +12,16 @@ class DetectionResult:
 
 
 class PersonDetector:
-    def __init__(self, model_path: str, confidence: float):
+    def __init__(self, model_path: str, confidence: float, imgsz: int = 640):
         self._model = YOLO(model_path)
         self._confidence = confidence
+        self._imgsz = imgsz
 
     def detect(self, frame) -> DetectionResult:
         results = self._model.predict(
             source=frame,
             conf=self._confidence,
+            imgsz=self._imgsz,
             classes=[0],
             verbose=False,
         )

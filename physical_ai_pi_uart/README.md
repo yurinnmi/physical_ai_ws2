@@ -10,6 +10,35 @@ USBカメラをYOLOで解析し、人物検出状態をGPIO UARTでM5Stackへ通
 - `config.py`: 設定値
 - `requirements.txt`: Python依存
 
+## config.py 設定項目
+
+`config.py` を編集することで、カメラ・検出・UARTの挙動を調整できます。
+
+| 項目 | デフォルト | 説明 |
+|---|---|---|
+| `CAMERA_INDEX` | `0` | 使用するカメラの`/dev/videoN`番号 |
+| `FRAME_WIDTH` / `FRAME_HEIGHT` | `320` / `240` | カメラのキャプチャ解像度。大きいほど画質は上がるが、キャプチャ・プレビュー描画の負荷が増える |
+| `MODEL_PATH` | `"yolov8n.pt"` | 使用するYOLOモデルファイル |
+| `CONFIDENCE` | `0.50` | 人物と判定する信頼度のしきい値。上げると誤検出は減るが、未検出が増える |
+| `YOLO_IMGSZ` | `320` | YOLO推論時に画像を縮小してから入力するサイズ。`FRAME_WIDTH/HEIGHT`とは別に指定でき、小さいほど推論が軽くなるが検出精度は下がる |
+| `PROCESS_EVERY_N_FRAMES` | `2` | 何フレームに1回YOLO推論を行うか。大きくするほど負荷は下がるが、状態変化への反応が遅れる（間引いたフレームは直前の検出結果をプレビュー表示に流用する） |
+| `PERSON_ON_CONSECUTIVE_FRAMES` | `3` | 人物未検出→検出への切り替えに必要な連続検出フレーム数 |
+| `PERSON_OFF_DELAY_SEC` | `2.0` | 人物検出→未検出への切り替えに必要な、最後の検出からの経過秒数 |
+| `SERIAL_PORT` | `"/dev/ttyAMA0"` | M5Stackとの通信に使うシリアルデバイス |
+| `SERIAL_BAUD` | `115200` | UARTのボーレート（M5Stack側と一致させる必要がある） |
+| `SHOW_PREVIEW` | `True` | カメラ映像のプレビューウィンドウを表示するか（`--no-preview`で実行時に上書き可能） |
+
+### 軽量化したい場合のチューニング例
+
+処理が重い・カクつく場合は、以下の順で調整すると効果的です。
+
+1. `PROCESS_EVERY_N_FRAMES` を `3`〜`4` に増やす（推論回数そのものを減らす。効果大）
+2. `YOLO_IMGSZ` を `256` など小さくする（1回の推論を軽くする）
+3. `FRAME_WIDTH` / `FRAME_HEIGHT` を下げる（キャプチャ・描画の負荷を減らす）
+4. `--no-preview` で起動し、プレビュー描画自体を無くす
+
+逆に検出の反応を速くしたい場合は、`PROCESS_EVERY_N_FRAMES` を `1` に戻してください。
+
 ## UART
 
 デフォルト:

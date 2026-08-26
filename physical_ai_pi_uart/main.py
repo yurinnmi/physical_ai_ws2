@@ -44,7 +44,7 @@ def main():
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config.FRAME_HEIGHT)
 
     try:
-        detector = PersonDetector(args.model, args.conf)
+        detector = PersonDetector(args.model, args.conf, config.YOLO_IMGSZ)
     except Exception as exc:
         print(f"ERROR: failed to load YOLO model: {exc}", file=sys.stderr)
         cap.release()
@@ -61,6 +61,10 @@ def main():
 
     show_preview = config.SHOW_PREVIEW and not args.no_preview
 
+    frame_count = 0
+    last_result = None
+    stable_state = False
+
     try:
         while True:
             ok, frame = cap.read()
@@ -68,19 +72,31 @@ def main():
                 print("WARNING: failed to read camera frame.")
                 continue
 
-            result = detector.detect(frame)
-            stable_state, changed = state_filter.update(result.person_detected)
+            frame_count += 1
+            if frame_count % config.PROCESS_EVERY_N_FRAMES == 0:
+                last_result = detector.detect(frame)
+                stable_state, changed = state_filter.update(
+                    last_result.person_detected
+                )
 
-            if changed:
-                uart.send_person(stable_state)
+                if changed:
+                    uart.send_person(stable_state)
 
             if show_preview:
+                annotated_frame = (
+                    last_result.annotated_frame
+                    if last_result is not None
+                    else frame
+                )
+                person_count = (
+                    last_result.person_count if last_result is not None else 0
+                )
                 label = (
                     f"PERSON: {'ON' if stable_state else 'OFF'}"
-                    f"  count={result.person_count}"
+                    f"  count={person_count}"
                 )
                 cv2.putText(
-                    result.annotated_frame,
+                    annotated_frame,
                     label,
                     (15, 30),
                     cv2.FONT_HERSHEY_SIMPLEX,
@@ -91,7 +107,7 @@ def main():
                 )
                 cv2.imshow(
                     "Physical AI - Person Detection",
-                    result.annotated_frame,
+                    annotated_frame,
                 )
 
                 key = cv2.waitKey(1) & 0xFF
