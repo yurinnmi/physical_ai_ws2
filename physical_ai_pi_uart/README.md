@@ -107,10 +107,34 @@ ls -l /dev/serial*
 - `/boot/firmware/config.txt` に `dtoverlay=disable-bt` がある場合 → GPIO14/15はフルUART（`/dev/ttyAMA0`）
 - `dtoverlay=disable-bt` が無い場合 → GPIO14/15はミニUART（`/dev/ttyS0`、Bluetoothがフル UARTを占有）
 
-権限不足の場合:
+### Permission denied
+
+`python main.py` 実行時に `/dev/ttyAMA0` (または `/dev/serial0`) で `Permission denied` になる場合、ユーザーが `dialout` グループに入っていないことが原因です。
+
+```bash
+groups
+```
+
+の結果に `dialout` が含まれているか確認してください。含まれていなければ:
 
 ```bash
 sudo usermod -aG dialout $USER
+sudo reboot
 ```
 
-実行後、ログアウト・ログインしてください。
+を実行してください（グループ反映のためログアウト・ログインだけでも可）。
+
+この設定は**ユーザーアカウントに対する恒久的な設定**のため、一度行えば以降は毎回実行する必要はありません。OSを再インストールしたり、別ユーザーで実行する場合のみ再設定が必要です。
+
+それでも解決しない場合、シリアルコンソールがポートを占有している可能性があります。
+
+```bash
+sudo systemctl status serial-getty@ttyAMA0.service
+```
+
+が `active (running)` の場合:
+
+```bash
+sudo systemctl stop serial-getty@ttyAMA0.service
+sudo systemctl disable serial-getty@ttyAMA0.service
+```
