@@ -170,3 +170,69 @@ sudo systemctl status serial-getty@ttyAMA0.service
 sudo systemctl stop serial-getty@ttyAMA0.service
 sudo systemctl disable serial-getty@ttyAMA0.service
 ```
+
+### カメラが起動しない
+
+まず、カメラデバイスが認識されているか確認してください。
+
+```bash
+ls -l /dev/video*
+```
+
+USBカメラ1台の場合、通常 `/dev/video0` がキャプチャ用、`/dev/video1` はメタデータ用（映像は出ない）というように複数のデバイスが表示されることがあります。
+
+より詳しい情報を見たい場合は `v4l2-ctl` で接続デバイス一覧を確認できます。
+
+```bash
+v4l2-ctl --list-devices
+```
+
+`command not found` の場合はインストールしてください。
+
+```bash
+sudo apt install v4l-utils
+```
+
+#### YOLO抜きの最小テストスクリプトでの確認
+
+カメラ番号やGUI表示（プレビューウィンドウ）が正しく機能しているかを、YOLOを使わずに切り分けたい場合は、以下の最小スクリプトで確認できます。
+
+```bash
+cd physical_ai_pi_uart
+cat > camera_test.py << 'EOF'
+import cv2
+import sys
+
+camera_index = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+cap = cv2.VideoCapture(camera_index)
+
+if not cap.isOpened():
+    print(f"ERROR: failed to open camera {camera_index}")
+    sys.exit(1)
+
+print(f"Camera {camera_index} opened. Press 'q' to quit.")
+
+while True:
+    ok, frame = cap.read()
+    if not ok:
+        print("WARNING: failed to read frame")
+        continue
+    cv2.imshow("Camera Test", frame)
+    if cv2.waitKey(1) & 0xFF == ord("q"):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+EOF
+python camera_test.py 0
+```
+
+カメラ番号を変えたい場合は引数で指定してください（例: `python camera_test.py 1`）。
+
+映像が表示されれば、そのカメラ番号とGUI表示は問題ありません。表示されない場合は、`main.py`側ではなくカメラ・配線・ディスプレイ環境側の問題に絞り込めます。
+
+確認が終わったら、テスト用スクリプトは削除してください。
+
+```bash
+rm camera_test.py
+```
