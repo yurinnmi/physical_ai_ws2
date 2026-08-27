@@ -1,5 +1,5 @@
 # Physical AI Demo
-## Raspberry Pi側 UART版 仕様書
+## Raspberry Pi側 UART版 仕様
 
 ## 1. 概要
 
