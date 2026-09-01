@@ -3,6 +3,13 @@
 
 #include "clock_display.h"
 
+// SG92Rサーボ制御を無効にする場合はこの行をコメントアウトする。
+#define ENABLE_SG92R_SERVO
+
+#ifdef ENABLE_SG92R_SERVO
+#include <ESP32Servo.h>
+#endif
+
 // ============================================================
 // Physical AI Demo - M5Stack side
 //
@@ -25,10 +32,23 @@
 // M5Stack Basic UART2
 //   RX = GPIO16
 //   TX = GPIO17
+//
+// SG92Rサーボ (ENABLE_SG92R_SERVO 有効時)
+//   信号線 = GPIO5 (使用するM5Stackモデル・配線に応じて変更可)
+//   時計表示中   : 120度
+//   人物検出表示中: 30度
 // ============================================================
 
 namespace
 {
+
+#ifdef ENABLE_SG92R_SERVO
+constexpr int SERVO_PIN = 5;
+constexpr int SERVO_ANGLE_CLOCK = 120;
+constexpr int SERVO_ANGLE_PERSON_DETECTED = 30;
+
+Servo sg92rServo;
+#endif
 
 constexpr uint32_t UART_BAUD = 115200;
 constexpr int UART_RX_PIN = 16;
@@ -90,6 +110,13 @@ void setScreenState(ScreenState newState)
 
     screenState = newState;
     redrawCurrentScreen();
+
+#ifdef ENABLE_SG92R_SERVO
+    sg92rServo.write(
+        screenState == ScreenState::PersonDetected
+            ? SERVO_ANGLE_PERSON_DETECTED
+            : SERVO_ANGLE_CLOCK);
+#endif
 }
 
 void handleTimeCommand(const char* payload)
@@ -243,6 +270,12 @@ void setup()
         SERIAL_8N1,
         UART_RX_PIN,
         UART_TX_PIN);
+
+#ifdef ENABLE_SG92R_SERVO
+    sg92rServo.setPeriodHertz(50);
+    sg92rServo.attach(SERVO_PIN, 500, 2400);
+    sg92rServo.write(SERVO_ANGLE_CLOCK);
+#endif
 
     Serial.println();
     Serial.println(

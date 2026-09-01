@@ -79,3 +79,17 @@ PERSON,0
 PERSON
 DETECTED
 ```
+
+## SG92Rサーボ制御
+
+`main.cpp` の `ENABLE_SG92R_SERVO` を定義すると、画面表示に合わせてSG92Rサーボを駆動する。
+無効にする場合は `main.cpp` 冒頭の `#define ENABLE_SG92R_SERVO` をコメントアウトする（ビルドからサーボ関連コード・ライブラリ依存が除外される）。
+
+| 状態 | 角度 |
+|---|---|
+| 時計表示中 | 120度 |
+| 人物検出表示中 | 30度 |
+
+配線: 信号線を `GPIO5` に接続する（使用するM5Stackモデル・配線に応じて `main.cpp` の `SERVO_PIN` を変更可能）。
+
+ライブラリ: [ESP32Servo](https://github.com/madhephaestus/ESP32Servo)（`platformio.ini` の `lib_deps` に追加済み）。
