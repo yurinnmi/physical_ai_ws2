@@ -171,6 +171,37 @@ sudo systemctl stop serial-getty@ttyAMA0.service
 sudo systemctl disable serial-getty@ttyAMA0.service
 ```
 
+## デスクトップからの起動
+
+`run_demo.sh` は、仮想環境の有効化 → `python main.py` 実行 → 終了後に仮想環境を無効化、までを1つにまとめたスクリプトです。
+
+初回のみ実行権限を付与してください。
+
+```bash
+chmod +x run_demo.sh
+```
+
+ターミナルから直接実行する場合:
+
+```bash
+./run_demo.sh
+```
+
+プレビューウィンドウを選択した状態で `q` を押すと `main.py` が終了し、続けて仮想環境も自動的に無効化されます。
+
+### デスクトップにアイコンを置く
+
+Raspberry Pi OS デスクトップからダブルクリックで起動したい場合は、`PhysicalAIDemo.desktop` を使います。
+
+```bash
+chmod +x PhysicalAIDemo.desktop
+cp PhysicalAIDemo.desktop ~/Desktop/
+```
+
+デスクトップ上のアイコンを右クリックし、「信頼して起動 (Trust and Launch / Execute)」などを選択すると実行できるようになります（Raspberry Pi OSのバージョンにより表記は異なります）。
+
+`PhysicalAIDemo.desktop` はリポジトリを `~/physical_ai_ws2` に配置している前提で `$HOME/physical_ai_ws2/physical_ai_pi_uart/run_demo.sh` を実行します。配置場所が異なる場合は `Exec=` の行を編集してください。
+
 ### カメラが起動しない
 
 まず、カメラデバイスが認識されているか確認してください。

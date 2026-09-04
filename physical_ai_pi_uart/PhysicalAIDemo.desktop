@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Physical AI Demo
+Comment=カメラで人物検出してM5Stackへ通知するデモを起動
+Exec=bash -c "x-terminal-emulator -e $HOME/physical_ai_ws2/physical_ai_pi_uart/run_demo.sh"
+Icon=camera-web
+Terminal=false
+Categories=Utility;
