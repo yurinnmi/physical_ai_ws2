@@ -61,6 +61,11 @@ PERSON,0
 
 詳細は各サブプロジェクトのREADMEおよび[documents/](documents/RaspberryPI側仕様.md)を参照。
 
+## デモ動画
+
+- [Detect_person.MOV](documents/Detect_person.MOV) — 人物検出時の動作
+- [FInd_NoPerson.MOV](documents/FInd_NoPerson.MOV) — 人物未検出時の動作
+
 ## セットアップ概要
 
 ### Raspberry Pi側
