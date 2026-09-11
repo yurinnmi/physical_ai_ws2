@@ -10,6 +10,10 @@
 #include <ESP32Servo.h>
 #endif
 
+// 複数物体検出表示 (teddy bear / cup / bottle) を無効にする場合は
+// この行をコメントアウトする（無効時は従来のPERSON,0/1のみの表示に戻る）。
+#define ENABLE_MULTI_OBJECT_DISPLAY
+
 // ============================================================
 // Physical AI Demo - M5Stack side
 //
@@ -37,6 +41,13 @@
 //   信号線 = GPIO5 (使用するM5Stackモデル・配線に応じて変更可)
 //   時計表示中   : 120度
 //   人物検出表示中: 30度
+//
+// 複数物体検出表示 (ENABLE_MULTI_OBJECT_DISPLAY 有効時)
+//   TEDDY_BEAR,0 / TEDDY_BEAR,1
+//   CUP,0        / CUP,1
+//   BOTTLE,0     / BOTTLE,1
+//   3つのうち検出中のものをすべて画面に表示する。
+//   全て未検出に戻ったら時計表示に戻る。
 // ============================================================
 
 namespace
@@ -65,6 +76,10 @@ enum class ScreenState
 {
     Clock,
     PersonDetected
+#ifdef ENABLE_MULTI_OBJECT_DISPLAY
+    ,
+    MultiObjectDetected
+#endif
 };
 
 ScreenState screenState = ScreenState::Clock;
@@ -179,6 +194,141 @@ void handlePersonCommand(const char* payload)
         payload);
 }
 
+#ifdef ENABLE_MULTI_OBJECT_DISPLAY
+
+bool teddyBearDetected = false;
+bool cupDetected = false;
+bool bottleDetected = false;
+
+bool anyMultiObjectDetected()
+{
+    return teddyBearDetected || cupDetected || bottleDetected;
+}
+
+void drawMultiObjectDetected()
+{
+    struct Item
+    {
+        bool detected;
+        const char* label;
+    };
+
+    const Item items[] = {
+        {teddyBearDetected, "TEDDY BEAR"},
+        {cupDetected, "CUP"},
+        {bottleDetected, "BOTTLE"},
+    };
+
+    int activeCount = 0;
+    for (const auto& item : items)
+    {
+        if (item.detected)
+        {
+            activeCount++;
+        }
+    }
+
+    canvas.fillSprite(TFT_BLACK);
+    canvas.setTextColor(TFT_WHITE, TFT_BLACK);
+    canvas.setTextDatum(textdatum_t::middle_center);
+    canvas.setTextSize(4);
+
+    if (activeCount == 0)
+    {
+        canvas.pushSprite(0, 0);
+        return;
+    }
+
+    int lineHeight = canvas.height() / (activeCount + 1);
+    int y = lineHeight;
+
+    for (const auto& item : items)
+    {
+        if (!item.detected)
+        {
+            continue;
+        }
+
+        canvas.drawString(item.label, canvas.width() / 2, y);
+        y += lineHeight;
+    }
+
+    canvas.pushSprite(0, 0);
+}
+
+void updateMultiObjectScreen()
+{
+    if (anyMultiObjectDetected())
+    {
+        screenState = ScreenState::MultiObjectDetected;
+        drawMultiObjectDetected();
+
+#ifdef ENABLE_SG92R_SERVO
+        sg92rServo.write(SERVO_ANGLE_PERSON_DETECTED);
+#endif
+        return;
+    }
+
+    if (screenState == ScreenState::MultiObjectDetected)
+    {
+        screenState = ScreenState::Clock;
+        redrawCurrentScreen();
+
+#ifdef ENABLE_SG92R_SERVO
+        sg92rServo.write(SERVO_ANGLE_CLOCK);
+#endif
+    }
+}
+
+void handleMultiObjectCommand(const char* tag, const char* payload)
+{
+    bool* target = nullptr;
+
+    if (strcmp(tag, "TEDDY_BEAR") == 0)
+    {
+        target = &teddyBearDetected;
+    }
+    else if (strcmp(tag, "CUP") == 0)
+    {
+        target = &cupDetected;
+    }
+    else if (strcmp(tag, "BOTTLE") == 0)
+    {
+        target = &bottleDetected;
+    }
+
+    if (target == nullptr)
+    {
+        return;
+    }
+
+    if (strcmp(payload, "1") == 0)
+    {
+        *target = true;
+    }
+    else if (strcmp(payload, "0") == 0)
+    {
+        *target = false;
+    }
+    else
+    {
+        Serial.printf(
+            "Invalid %s command: %s\n",
+            tag,
+            payload);
+        return;
+    }
+
+    Serial.printf(
+        "%s <- %s\n",
+        tag,
+        payload);
+
+    updateMultiObjectScreen();
+}
+
+#endif // ENABLE_MULTI_OBJECT_DISPLAY
+
 void processCommand(char* line)
 {
     if (line[0] == '\0')
@@ -197,6 +347,26 @@ void processCommand(char* line)
         handlePersonCommand(line + 7);
         return;
     }
+
+#ifdef ENABLE_MULTI_OBJECT_DISPLAY
+    if (strncmp(line, "TEDDY_BEAR,", 11) == 0)
+    {
+        handleMultiObjectCommand("TEDDY_BEAR", line + 11);
+        return;
+    }
+
+    if (strncmp(line, "CUP,", 4) == 0)
+    {
+        handleMultiObjectCommand("CUP", line + 4);
+        return;
+    }
+
+    if (strncmp(line, "BOTTLE,", 7) == 0)
+    {
+        handleMultiObjectCommand("BOTTLE", line + 7);
+        return;
+    }
+#endif
 
     Serial.printf(
         "Unknown command: %s\n",

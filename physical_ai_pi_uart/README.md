@@ -5,10 +5,26 @@ USBカメラをYOLOで解析し、人物検出状態をGPIO UARTでM5Stackへ通
 ## Files
 
 - `main.py`: 全体制御
-- `person_detector.py`: YOLO人物検出と安定化
+- `person_detector.py`: YOLO人物検出と安定化（従来モード。変更なし）
+- `multi_object_detector.py`: YOLO複数物体検出（teddy bear / cup / bottle）
 - `m5stack_uart.py`: M5Stack UART送信
 - `config.py`: 設定値
 - `requirements.txt`: Python依存
+
+## 複数物体検出モード (teddy bear / cup / bottle)
+
+`config.py` の `ENABLE_MULTI_OBJECT_DETECTION` で、人物検出モードと複数物体検出モードを切り替えられる。
+
+| 設定値 | 動作 |
+|---|---|
+| `True` (デフォルト) | `multi_object_detector.py` を使い、teddy bear / cup / bottle を検出する |
+| `False` | 従来の `person_detector.py` を使った人物検出のみ動作する（ロジック変更なし） |
+
+対象クラスは `config.py` の `MULTI_OBJECT_CLASSES`（`yolov8n.pt`のCOCOクラスID: teddy bear=77, cup=41, bottle=39）で指定する。
+
+複数物体検出モードでは、検出された物体ごとに独立して安定化（3フレーム連続検出でON、2秒未検出でOFF）を行い、状態が変化した物体だけをUARTで送信する（`TEDDY_BEAR,0/1` / `CUP,0/1` / `BOTTLE,0/1`）。3つ同時に検出されていれば3つとも送信されるため、M5Stack側で3つ同時表示できる。
+
+対応するM5Stack側の表示切り替えは `ENABLE_MULTI_OBJECT_DISPLAY`（[M5Stack/README.md](../M5Stack/README.md)参照）。
 
 ## config.py 設定項目
 

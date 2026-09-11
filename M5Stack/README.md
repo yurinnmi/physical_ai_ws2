@@ -93,3 +93,18 @@ DETECTED
 配線: 信号線を `GPIO5` に接続する（使用するM5Stackモデル・配線に応じて `main.cpp` の `SERVO_PIN` を変更可能）。
 
 ライブラリ: [ESP32Servo](https://github.com/madhephaestus/ESP32Servo)（`platformio.ini` の `lib_deps` に追加済み）。
+
+## 複数物体検出表示 (teddy bear / cup / bottle)
+
+`main.cpp` の `ENABLE_MULTI_OBJECT_DISPLAY` を定義すると、人物検出の代わりに以下3種類の物体検出結果を表示できる。
+無効にする場合は `main.cpp` 冒頭の `#define ENABLE_MULTI_OBJECT_DISPLAY` をコメントアウトする（従来の`PERSON,0/1`のみの表示に戻る）。
+
+```text
+TEDDY_BEAR,0 / TEDDY_BEAR,1
+CUP,0        / CUP,1
+BOTTLE,0     / BOTTLE,1
+```
+
+3つのうち検出中のものをすべて画面に一覧表示する（例: teddy bearとbottleが同時検出されていれば2行表示）。すべて未検出に戻ると時計表示に戻る。
+
+`ENABLE_SG92R_SERVO` も有効な場合、人物検出時と同じ角度でサーボも連動する（いずれか1つでも検出中: 30度、すべて未検出: 120度）。

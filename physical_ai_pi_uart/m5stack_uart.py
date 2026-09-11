@@ -1,6 +1,13 @@
 from datetime import datetime
 import serial
 
+# label -> M5Stack側で受け取るUARTコマンドのタグ名
+_OBJECT_UART_TAGS = {
+    "teddy bear": "TEDDY_BEAR",
+    "cup": "CUP",
+    "bottle": "BOTTLE",
+}
+
 
 class M5StackUart:
     def __init__(self, port: str, baudrate: int = 115200):
@@ -28,3 +35,7 @@ class M5StackUart:
 
     def send_person(self, detected: bool):
         self._send_line(f"PERSON,{1 if detected else 0}")
+
+    def send_object(self, label: str, detected: bool):
+        tag = _OBJECT_UART_TAGS.get(label, label.upper().replace(" ", "_"))
+        self._send_line(f"{tag},{1 if detected else 0}")

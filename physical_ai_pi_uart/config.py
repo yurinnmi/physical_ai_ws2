@@ -15,3 +15,18 @@ SERIAL_PORT = "/dev/ttyAMA0"
 SERIAL_BAUD = 115200
 
 SHOW_PREVIEW = True
+
+# ============================================================
+# 複数物体検出 (teddy bear / cup / bottle)
+#
+# True  : main.py は複数物体検出モードで動作する (multi_object_detector.py)
+# False : main.py は従来の人物検出モードで動作する (person_detector.py、変更なし)
+# ============================================================
+ENABLE_MULTI_OBJECT_DETECTION = True
+
+# label -> yolov8n.pt (COCO学習済み) のクラスID
+MULTI_OBJECT_CLASSES = {
+    "teddy bear": 77,
+    "cup": 41,
+    "bottle": 39,
+}
