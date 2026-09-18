@@ -77,6 +77,7 @@ BOTTLE,0
 
 - [Detect_person.MOV](documents/Detect_person.MOV) — 人物検出時の動作
 - [FInd_NoPerson.MOV](documents/FInd_NoPerson.MOV) — 人物未検出時の動作
+- [bottle.mp4](documents/bottle.mp4) — 複数物体検出モード: bottle検出時の動作
 
 
 ## セットアップ概要
