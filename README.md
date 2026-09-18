@@ -10,14 +10,15 @@ USBカメラ
    ↓
 YOLOv8n (Raspberry Pi)
    ↓
-人物検出・安定化
+人物検出 または 物体検出 (teddy bear / cup / bottle) ・安定化
    ↓
 GPIO UART
    ↓
 M5Stack (時計 / 検出表示)
 ```
 
-- 人物を3フレーム連続検出でON、最後の検出から2秒間未検出でOFFに切り替える安定化処理を行う
+- `config.py` の `ENABLE_MULTI_OBJECT_DETECTION` で、人物検出モードと複数物体検出モード（teddy bear / cup / bottle）を切り替えられる
+- 対象を3フレーム連続検出でON、最後の検出から2秒間未検出でOFFに切り替える安定化処理を行う（複数物体検出モードでは対象ごとに独立して判定）
 - 状態が変化したときのみUARTで通知する
 
 ## リポジトリ構成
@@ -53,10 +54,21 @@ physical_ai_ws2/
 
 ### 送信コマンド例
 
+人物検出モード:
+
 ```text
 TIME,13:45:30
 PERSON,1
 PERSON,0
+```
+
+複数物体検出モード (teddy bear / cup / bottle):
+
+```text
+TIME,13:45:30
+TEDDY_BEAR,1
+CUP,1
+BOTTLE,0
 ```
 
 詳細は各サブプロジェクトのREADMEおよび[documents/](documents/RaspberryPI側仕様.md)を参照。
