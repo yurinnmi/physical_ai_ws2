@@ -11,3 +11,6 @@ __pycache__/
 .vscode/ipch/
 .DS_Store
 Thumbs.db
+
+# Cowork生成物
+Claude outputs/
