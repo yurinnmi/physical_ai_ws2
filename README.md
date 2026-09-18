@@ -1,6 +1,6 @@
 # Physical AI Demo
 
-Raspberry PiでUSBカメラの映像をYOLOv8nで解析して人物検出を行い、その結果をGPIO UART経由でM5Stackへ通知するデモです。
+Raspberry PiでUSBカメラの映像をYOLOv8nで解析して人物や物体検出を行い、その結果をGPIO UART経由でM5Stackへ通知するデモです。
 M5Stackは普段はアナログ時計を表示し、人物検出時には検出表示に切り替わります。
 
 ## システム構成
