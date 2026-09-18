@@ -78,15 +78,6 @@ BOTTLE,0
 - [Detect_person.MOV](documents/Detect_person.MOV) — 人物検出時の動作
 - [FInd_NoPerson.MOV](documents/FInd_NoPerson.MOV) — 人物未検出時の動作
 
-### 複数物体検出モード (teddy bear / cup / bottle)
-
-- [baer.mp4](documents/baer.mp4) — teddy bear検出時の動作
-- [bottle.mp4](documents/bottle.mp4) — bottle検出時の動作
-- [cup.mp4](documents/cup.mp4) — cup検出時の動作
-- [cup_bottle.mp4](documents/cup_bottle.mp4) — cup・bottle同時検出時の動作
-- [cup_bottle_bear.mp4](documents/cup_bottle_bear.mp4) — cup・bottle・teddy bear同時検出時の動作
-- [cup_difficult.mp4](documents/cup_difficult.mp4) — cup検出が難しいケース
-
 
 ## セットアップ概要
 
